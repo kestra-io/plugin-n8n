@@ -1,10 +1,10 @@
 {
-  "name": "plugin-template",
+  "name": "plugin-n8n",
   "build": {
     "context": ".",
     "dockerfile": "Dockerfile"
   },
-  "workspaceFolder": "/workspaces/plugin-template",
+  "workspaceFolder": "/workspaces/plugin-n8n",
   "forwardPorts": [8080],
   "customizations": {
     "vscode": {

@@ -36,11 +36,13 @@
 <p align="center" style="color:grey;"><i>Get started with Kestra in 3 minutes.</i></p>
 
 
-# Kestra Plugin Template
+# n8n Plugin for Kestra
 
-> A template for creating Kestra plugins
+> This repository provides the official **Kestra plugin for n8n**.
 
-This repository serves as a general template for creating a new [Kestra](https://github.com/kestra-io/kestra) plugin. It should take only a few minutes! Use this repository as a scaffold to ensure that you've set up the plugin correctly, including unit tests and CI/CD workflows.
+It enables Kestra flows to trigger **n8n workflows** through HTTP Webhook endpoints — with support for headers, authentication, files, and different response modes (immediate, deferred, or streaming).
+
+This repository follows the standard Kestra plugin template, ensuring consistent structure, unit testing, and CI/CD setup for seamless integration.
 
 ![Kestra orchestrator](https://kestra.io/video.gif)
 
