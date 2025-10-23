@@ -69,7 +69,7 @@ public class Authentication {
     @PluginProperty(dynamic = true)
     private Map<String, String> customHeaders;
 
-    public Map<String, String> getHeaders(RunContext runContext) {
+    public Map<String, String> getHeaders(RunContext runContext) throws Exception {
         switch (type) {
             case BASIC_AUTH:
                 return getBasicAuthHeaders(runContext);
@@ -84,7 +84,7 @@ public class Authentication {
         }
     }
 
-    private Map<String, String> getBasicAuthHeaders(RunContext runContext) {
+    private Map<String, String> getBasicAuthHeaders(RunContext runContext) throws Exception {
         String renderedUsername = runContext.render(username);
         String renderedPassword = runContext.render(password);
         String credentials = renderedUsername + ":" + renderedPassword;
@@ -92,13 +92,13 @@ public class Authentication {
         return Map.of("Authorization", "Basic " + encodedCredentials);
     }
 
-    private Map<String, String> getHeaderAuthHeaders(RunContext runContext) {
+    private Map<String, String> getHeaderAuthHeaders(RunContext runContext) throws Exception {
         String renderedHeaderName = runContext.render(headerName);
         String renderedHeaderValue = runContext.render(headerValue);
         return Map.of(renderedHeaderName, renderedHeaderValue);
     }
 
-    private Map<String, String> getJwtHeaders(RunContext runContext) {
+    private Map<String, String> getJwtHeaders(RunContext runContext) throws Exception {
         String renderedToken = runContext.render(jwtToken);
         return Map.of("Authorization", "Bearer " + renderedToken);
     }
@@ -107,7 +107,7 @@ public class Authentication {
         if (customHeaders == null) {
             return Map.of();
         }
-        return runContext.render(customHeaders);
+        return customHeaders;
     }
 
     @Schema(enumAsRef = true)

@@ -103,7 +103,7 @@ public class TriggerWorkflow extends Task implements RunnableTask<TriggerWorkflo
     )
     @Builder.Default
     @PluginProperty
-    private Duration timeout = Duration.ofMinutes(5);
+    private Duration requestTimeout = Duration.ofMinutes(5);
 
     @Schema(
         title = "HTTP headers",
@@ -139,9 +139,8 @@ public class TriggerWorkflow extends Task implements RunnableTask<TriggerWorkflo
         
         // Render dynamic values
         String renderedUrl = runContext.render(url);
-        Map<String, String> renderedHeaders = headers != null ? 
-            runContext.render(headers) : Map.of();
-        Object renderedBody = body != null ? runContext.render(body) : null;
+        Map<String, String> renderedHeaders = headers != null ? headers : Map.of();
+        Object renderedBody = body;
         
         logger.info("Triggering n8n workflow at: {}", renderedUrl);
         
@@ -153,11 +152,19 @@ public class TriggerWorkflow extends Task implements RunnableTask<TriggerWorkflo
         // Build request
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
             .uri(URI.create(renderedUrl))
-            .timeout(timeout);
+            .timeout(requestTimeout);
         
         // Set method and body
         HttpRequest.BodyPublisher bodyPublisher = buildBodyPublisher(renderedBody, from, runContext);
         requestBuilder.method(method.name(), bodyPublisher);
+        
+        // Set Content-Type header for multipart requests
+        if (from != null && !from.isEmpty()) {
+            String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
+            renderedHeaders.put("Content-Type", "multipart/form-data; boundary=" + boundary);
+        } else if (body != null && !renderedHeaders.containsKey("Content-Type")) {
+            renderedHeaders.put("Content-Type", "application/json");
+        }
         
         // Add headers
         if (authentication != null) {
@@ -203,9 +210,20 @@ public class TriggerWorkflow extends Task implements RunnableTask<TriggerWorkflo
     }
     
     private HttpRequest.BodyPublisher buildMultipartBodyPublisher(Object body, List<String> files, RunContext runContext) throws IOException {
-        // This is a simplified implementation - in a real scenario, you'd use a proper multipart builder
-        StringBuilder multipart = new StringBuilder();
         String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
+        
+        // Create a proper multipart body using a custom publisher
+        return HttpRequest.BodyPublishers.ofInputStream(() -> {
+            try {
+                return new java.io.ByteArrayInputStream(buildMultipartData(body, files, runContext, boundary).getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to build multipart data", e);
+            }
+        });
+    }
+    
+    private String buildMultipartData(Object body, List<String> files, RunContext runContext, String boundary) throws IOException {
+        StringBuilder multipart = new StringBuilder();
         
         // Add form fields
         if (body instanceof Map) {
@@ -223,24 +241,42 @@ public class TriggerWorkflow extends Task implements RunnableTask<TriggerWorkflo
             multipart.append("--").append(boundary).append("\r\n");
             multipart.append("Content-Disposition: form-data; name=\"file\"; filename=\"").append(filePath).append("\"\r\n");
             multipart.append("Content-Type: application/octet-stream\r\n\r\n");
-            // Note: In a real implementation, you'd read the file content here
-            multipart.append("[FILE_CONTENT]").append("\r\n");
+            
+            // For now, add placeholder for file content
+            // TODO: Implement proper file reading using Kestra's file handling
+            multipart.append("[FILE_CONTENT_PLACEHOLDER]");
+            multipart.append("\r\n");
         }
         
         multipart.append("--").append(boundary).append("--\r\n");
         
-        return HttpRequest.BodyPublishers.ofString(multipart.toString());
+        return multipart.toString();
     }
     
     private Output handleWaitResponse(HttpResponse<String> initialResponse, HttpClient client, HttpRequest request, RunContext runContext) throws Exception {
         Logger logger = runContext.logger();
         
-        // For now, we'll implement a simple polling mechanism
-        // In a real n8n integration, you'd need to implement proper webhook response handling
-        // based on n8n's response modes (immediate, when last node finishes, etc.)
+        // n8n supports different response modes:
+        // 1. Immediately - return once the workflow starts
+        // 2. When Last Node Finishes - return the output of the last executed node
+        // 3. Using "Respond to Webhook" Node - return custom-defined response
+        // 4. Streaming Response - for real-time feedback
         
+        // For immediate response mode, return the initial response
+        if (initialResponse.statusCode() == 200) {
+            logger.info("Workflow triggered successfully");
+            return Output.builder()
+                .statusCode(initialResponse.statusCode())
+                .responseBody(parseResponseBody(initialResponse.body()))
+                .headers(initialResponse.headers().map())
+                .duration(Duration.ofMillis(0))
+                .workflowUrl(request.uri().toString())
+                .build();
+        }
+        
+        // For other modes, implement polling mechanism
         int attempts = 0;
-        int maxAttempts = (int) (timeout.toSeconds() / pollFrequency.toSeconds());
+        int maxAttempts = (int) (requestTimeout.toSeconds() / pollFrequency.toSeconds());
         
         while (attempts < maxAttempts) {
             Thread.sleep(pollFrequency.toMillis());
