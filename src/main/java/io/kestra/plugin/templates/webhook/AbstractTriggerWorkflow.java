@@ -1,16 +1,14 @@
-package io.kestra.plugin.templates;
+package io.kestra.plugin.templates.webhook;
 
 import io.kestra.core.http.HttpRequest;
-import io.kestra.core.http.HttpResponse;
-import io.kestra.core.http.client.HttpClient;
 import io.kestra.core.http.client.configurations.HttpConfiguration;
-import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
-import io.kestra.core.models.tasks.Output;
-import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
+import io.kestra.plugin.templates.ContentType;
+import io.kestra.plugin.templates.HttpMethod;
+import io.kestra.plugin.templates.authentication.Authentication;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -25,29 +23,15 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-    title = "Trigger a N8N workflow via a webhook",
-    description = "Full description of this task"
-)
-@Plugin(
-    examples = {
-        @io.kestra.core.models.annotations.Example(
-            title = "Simple revert",
-            code = { "format: \"Text to be reverted\"" }
-        )
-    }
-)
-public class TriggerWorkflow extends Task implements RunnableTask<Output> {
+public abstract class AbstractTriggerWorkflow extends Task {
     private static final ContentType DEFAULT_CONTENT_TYPE = ContentType.BINARY;
-    private static final boolean DEFAULT_WAIT = true;
+    protected static final boolean DEFAULT_WAIT = true;
 
     @Schema(
         title = "Authentication Details for the N8N webhook",
@@ -109,10 +93,9 @@ public class TriggerWorkflow extends Task implements RunnableTask<Output> {
         description = "Full description of this input"
     )
     @Builder.Default
-    private Property<Boolean> wait = Property.ofValue(DEFAULT_WAIT);
+    protected Property<Boolean> wait = Property.ofValue(DEFAULT_WAIT);
 
-    @Override
-    public Output run(RunContext runContext) throws Exception {
+    protected HttpRequest buildRequest(RunContext runContext) throws Exception {
         URI uri = runContext.render(this.url).as(URI.class).orElseThrow(
             () -> new IllegalArgumentException("URL cannot be null")
         );
@@ -151,15 +134,7 @@ public class TriggerWorkflow extends Task implements RunnableTask<Output> {
             authentication.applyAuthentication(requestBuilder);
         });
 
-
-
-        return makeRequest(runContext, requestBuilder.build(), wait);
-    }
-
-    public record Output(
-        int statusCode,
-        String body
-    ) implements io.kestra.core.models.tasks.Output {
+        return requestBuilder.build();
     }
 
     private URI buildUri(String url, Map<String, Object> queryParameters) throws URISyntaxException {
@@ -175,41 +150,6 @@ public class TriggerWorkflow extends Task implements RunnableTask<Output> {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
-    private Output makeRequest(RunContext runContext, HttpRequest request, boolean wait) throws Exception {
-        CompletableFuture<Output> completableFuture = new CompletableFuture<>();
-        try (HttpClient client = new HttpClient(runContext, options)) {
-            client.request(request, handleResponse(wait, completableFuture));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return completableFuture.get();
-    }
-
-    private Consumer<HttpResponse<InputStream>> handleResponse(boolean wait, CompletableFuture<Output> completableFuture) {
-        return (HttpResponse<InputStream> response) -> {
-            if (response.getStatus().getCode() != 200) {
-                completableFuture.completeExceptionally(new Exception("Received non-200 response from Apify API: " + response.getStatus().getCode()));
-                return;
-            }
-
-            if (!wait) {
-                completableFuture.complete(new Output(
-                    response.getStatus().getCode(),
-                    ""
-                ));
-                return;
-            }
-
-            try {
-                completableFuture.complete(new Output(
-                    response.getStatus().getCode(),
-                    new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8)
-                ));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
 
 
     private static void setRequestBody(HttpRequest.HttpRequestBuilder requestBuilder, Map<String, Object> body) {

@@ -1,4 +1,4 @@
-package io.kestra.plugin.templates;
+package io.kestra.plugin.templates.authentication;
 
 import io.kestra.core.http.HttpRequest;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package io.kestra.plugin.templates;
+package io.kestra.plugin.templates.authentication;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -19,5 +19,5 @@ public abstract class Authentication {
     @NotNull
     protected String type;
 
-    abstract void applyAuthentication(HttpRequest.HttpRequestBuilder requestBuilder);
+    abstract public void applyAuthentication(HttpRequest.HttpRequestBuilder requestBuilder);
 }
