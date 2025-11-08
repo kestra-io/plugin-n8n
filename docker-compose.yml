@@ -10,3 +10,19 @@ services:
       - "8080:8080"
     volumes:
       - ./build/libs/:/app/plugins/
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    hostname: n8n
+    ports:
+      - "5678:5678"
+    environment:
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_RUNNERS_ENABLED: "true"
+      WEBHOOK_URL: "http://n8n:5678"
+    volumes:
+      - n8n_kestra_data:/home/node/.n8n
+
+volumes:
+  n8n_kestra_data:
+
