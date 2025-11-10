@@ -1,5 +1,6 @@
 package io.kestra.plugin.templates.webhook;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kestra.core.http.HttpRequest;
 import io.kestra.core.http.HttpResponse;
 import io.kestra.core.http.client.HttpClient;
@@ -7,13 +8,15 @@ import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.tasks.Output;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -35,6 +38,8 @@ import java.util.function.Consumer;
     }
 )
 public class TriggerWorkflow extends AbstractTriggerWorkflow implements RunnableTask<Output> {
+    private final static ObjectMapper mapper = JacksonMapper.ofJson(false);
+
     @Override
     public Output run(RunContext runContext) throws Exception {
         HttpRequest httpRequest = buildRequest(runContext);
@@ -46,7 +51,7 @@ public class TriggerWorkflow extends AbstractTriggerWorkflow implements Runnable
     @Builder
     public record Output(
         int statusCode,
-        String body
+        Object body
     ) implements io.kestra.core.models.tasks.Output {
     }
 
@@ -76,13 +81,22 @@ public class TriggerWorkflow extends AbstractTriggerWorkflow implements Runnable
             }
 
             try {
+                String contentTypeHeader = response.getHeaders().firstValue("Content-Type").orElse(null);
                 completableFuture.complete(new Output(
                     response.getStatus().getCode(),
-                    new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8)
+                    parseBodyForContentType(response.getBody(), contentTypeHeader)
                 ));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         };
+    }
+
+    private static Object parseBodyForContentType(InputStream inputStream, @Nullable String contentType) throws IOException {
+        if (contentType != null && contentType.contains("application/json")) {
+            return mapper.readValue(inputStream, Map.class);
+        }
+
+        return new String(inputStream.readAllBytes());
     }
 }

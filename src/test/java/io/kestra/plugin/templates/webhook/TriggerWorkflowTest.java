@@ -113,6 +113,44 @@ class TriggerWorkflowTest {
         assertEquals(expectedOutput, actualOutput);
     }
 
+    @Test
+    void givenTriggerWorkflowWith_whenJsonContentReturned_thenResponseBodyIsMap() throws Exception {
+        RunContext runContext = runContextFactory.of();
+
+        stubFor(
+            post(urlEqualTo(WEBHOOK_PATH))
+                .willReturn(aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"keyOne\": \"valueOne\"}")
+                )
+        );
+
+        TriggerWorkflow.Output expectedOutput = TriggerWorkflow.Output.builder()
+            .statusCode(200)
+            .body(Map.of(
+                "keyOne", "valueOne"
+            )).build();
+
+        Map<String, ?> authentication = Map.of(
+            "type", "BasicAuth",
+            "username", "username",
+            "password", "password"
+        );
+
+        TriggerWorkflow triggerWorkflow = TriggerWorkflow.builder()
+            .authentication(new Property<>(authentication))
+            .uri(Property.ofValue(createWebhookUri()))
+            .wait(Property.ofValue(true))
+            .method(Property.ofValue(HttpMethod.POST))
+            .build();
+
+        TriggerWorkflow.Output actualOutput = triggerWorkflow.run(runContext);
+        assertEquals(expectedOutput, actualOutput);
+    }
+
+
+
     private String createWebhookUri() {
         return String.format("http://%s:%s%s", LOCALHOST, wireMockServer.port(), WEBHOOK_PATH);
     }
