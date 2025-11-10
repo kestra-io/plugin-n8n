@@ -57,7 +57,7 @@ import java.util.function.Consumer;
                 tasks:
                   - id: trigger_workflow
                     type: io.kestra.plugin.n8n.webhook.TriggerWorkflow
-                    authentication:\s
+                    authentication:
                       type: BasicAuth
                       username: "{{ secret('N8N_WEBHOOK_USERNAME') }}"
                       password: "{{ secret('N8N_WEBHOOK_PASSWORD') }}"
