@@ -43,6 +43,7 @@ public class TriggerWorkflow extends AbstractTriggerWorkflow implements Runnable
         return makeRequest(runContext, httpRequest, wait);
     }
 
+    @Builder
     public record Output(
         int statusCode,
         String body
@@ -59,7 +60,7 @@ public class TriggerWorkflow extends AbstractTriggerWorkflow implements Runnable
         return completableFuture.get();
     }
 
-    private Consumer<HttpResponse<InputStream>> handleResponse(boolean wait, CompletableFuture<Output> completableFuture) {
+    private static Consumer<HttpResponse<InputStream>> handleResponse(boolean wait, CompletableFuture<Output> completableFuture) {
         return (HttpResponse<InputStream> response) -> {
             if (response.getStatus().getCode() != 200) {
                 completableFuture.completeExceptionally(new Exception("Received non-200 response from Apify API: " + response.getStatus().getCode()));
@@ -69,7 +70,7 @@ public class TriggerWorkflow extends AbstractTriggerWorkflow implements Runnable
             if (!wait) {
                 completableFuture.complete(new Output(
                     response.getStatus().getCode(),
-                    ""
+                    null
                 ));
                 return;
             }

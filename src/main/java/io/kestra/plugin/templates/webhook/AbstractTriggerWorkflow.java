@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,7 +33,7 @@ public abstract class AbstractTriggerWorkflow extends Task {
 
     @Schema(
         title = "Authentication Details for the N8N webhook",
-        description = "Full description of this input"
+        description = "Authentication method for the n8n webhook. Supports Basic auth, Header auth, JWT auth, or None. Configure credentials to secure your webhook endpoint."
     )
     private Property<Authentication> authentication;
 
@@ -44,80 +42,77 @@ public abstract class AbstractTriggerWorkflow extends Task {
 
     @Schema(
         title = "N8N webhook URL",
-        description = "Full description of this input"
+        description = "The webhook URL endpoint from your n8n workflow. Use the Test URL for development or Production URL for live workflows. n8n generates unique URLs to avoid conflicts."
     )
     @NotNull
-    private Property<URI> url;
+    private Property<String> uri;
 
 
     @Schema(
-        title = "N8N webhook URL",
-        description = "Full description of this input"
+        title = "Content Type",
+        description = "Format of the request body data. Choose BINARY for files, JSON for structured data, XML for XML documents, or TEXT for plain text content."
     )
     @Builder.Default
-    private Property<ContentType> contentTypeProperty = Property.ofValue(ContentType.BINARY);
+    private Property<ContentType> contentType = Property.ofValue(ContentType.BINARY);
 
     @Schema(
-        title = "N8N webhook URL",
-        description = "Full description of this input"
+        title = "Request Body",
+        description = "JSON data to send in the request body. Maximum payload size is 16MB. Use this for POST, PUT, or PATCH requests to send structured data to the n8n webhook."
     )
-    private Property<Map<String, Object>> body;
+    private Property<Map<String, ?>> body;
 
     @Schema(
-        title = "N8N webhook URL",
-        description = "Full description of this input"
+        title = "Query Parameters",
+        description = "URL query parameters to append to the webhook URL. These parameters will be available in the n8n workflow as part of the incoming request data."
     )
-    private Property<Map<String, Object>> queryParameters;
+    private Property<Map<String, ?>> queryParameters;
 
     @Schema(
-        title = "N8N webhook URL",
-        description = "Full description of this input"
+        title = "HTTP Headers",
+        description = "Custom HTTP headers to include with the webhook request. Headers are useful for authentication, content type specification, or passing additional metadata to the n8n workflow."
     )
-    private Property<Map<String, Object>> headers;
+    private Property<Map<String, ?>> headers;
 
     @Schema(
-        title = "N8N webhook URL",
-        description = "Full description of this input"
+        title = "File Source URI",
+        description = "URI pointing to a file in Kestra storage to send as the request body. Use this instead of 'body' when sending binary data, files, or large content to the n8n webhook."
     )
     private Property<URI> from;
 
     @Schema(
-        title = "method",
-        description = "Full description of this input"
+        title = "HTTP Method",
+        description = "HTTP request method for the webhook call. n8n supports DELETE, GET, HEAD, PATCH, POST, and PUT methods. Choose the method that matches your n8n webhook configuration."
     )
     @NotNull
     private Property<HttpMethod> method;
 
     @Schema(
-        title = "method",
-        description = "Full description of this input"
+        title = "Wait for Response",
+        description = "Whether to wait for the n8n webhook response. When true, waits for the workflow to complete based on the webhook's response mode (immediate, deferred, or streaming)."
     )
     @Builder.Default
     protected Property<Boolean> wait = Property.ofValue(DEFAULT_WAIT);
 
     protected HttpRequest buildRequest(RunContext runContext) throws Exception {
-        URI uri = runContext.render(this.url).as(URI.class).orElseThrow(
+        String uri = runContext.render(this.uri).as(String.class).orElseThrow(
             () -> new IllegalArgumentException("URL cannot be null")
         );
 
         URI from = runContext.render(this.from).as(URI.class).orElse(null);
         HttpMethod rMethod = runContext.render(this.method).as(HttpMethod.class)
             .orElseThrow(() -> new IllegalArgumentException("HTTP Method cannot be null"));
-        boolean wait = runContext.render(this.wait).as(Boolean.class).orElse(DEFAULT_WAIT);
-        ContentType contentType = runContext.render(this.contentTypeProperty).as(ContentType.class).orElse(DEFAULT_CONTENT_TYPE);
-        Map<String, Object> body = runContext.render(this.body).asMap(String.class, Object.class);
-        Map<String, Object> queryParameters = runContext.render(this.queryParameters).asMap(String.class, Object.class);
-        Map<String, Object> headers = runContext.render(this.headers).asMap(String.class, Object.class);
+
+        ContentType contentType = runContext.render(this.contentType).as(ContentType.class).orElse(DEFAULT_CONTENT_TYPE);
+        Map<String, ?> body = runContext.render(this.body).asMap(String.class, Object.class);
+        Map<String, ?> queryParameters = runContext.render(this.queryParameters).asMap(String.class, Object.class);
+        Map<String, ?> headers = runContext.render(this.headers).asMap(String.class, Object.class);
 
         if (from != null && !body.isEmpty()) {
             throw new IllegalArgumentException("You cannot set both 'from' and 'body' properties at the same time");
         }
 
-
-
-
         HttpRequest.HttpRequestBuilder requestBuilder = HttpRequest.builder()
-            .uri(buildUri(uri.toString(), queryParameters))
+            .uri(buildUri(uri, queryParameters))
             .method(rMethod.name());
 
         headers.forEach((key, value) -> requestBuilder.addHeader(key, value.toString()));
@@ -137,7 +132,7 @@ public abstract class AbstractTriggerWorkflow extends Task {
         return requestBuilder.build();
     }
 
-    private URI buildUri(String url, Map<String, Object> queryParameters) throws URISyntaxException {
+    private URI buildUri(String url, Map<String, ?> queryParameters) throws URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(url);
         queryParameters.forEach((key, value) -> {
             uriBuilder.addParameter(key, value.toString());
@@ -146,13 +141,7 @@ public abstract class AbstractTriggerWorkflow extends Task {
         return uriBuilder.build();
     }
 
-    private String encodeValue(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
-    }
-
-
-
-    private static void setRequestBody(HttpRequest.HttpRequestBuilder requestBuilder, Map<String, Object> body) {
+    private static void setRequestBody(HttpRequest.HttpRequestBuilder requestBuilder, Map<String, ?> body) {
         requestBuilder.body(HttpRequest.JsonRequestBody
             .builder()
             .content(body)

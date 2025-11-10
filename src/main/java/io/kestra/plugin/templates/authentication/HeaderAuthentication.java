@@ -2,9 +2,11 @@ package io.kestra.plugin.templates.authentication;
 
 import io.kestra.core.http.HttpRequest;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class HeaderAuthentication extends Authentication {
     @NotNull
     private String name;
@@ -13,7 +15,7 @@ public class HeaderAuthentication extends Authentication {
     private String value;
 
     @Override
-    void applyAuthentication(HttpRequest.HttpRequestBuilder requestBuilder) {
+    public void applyAuthentication(HttpRequest.HttpRequestBuilder requestBuilder) {
         requestBuilder.addHeader(name, value);
     }
 }
