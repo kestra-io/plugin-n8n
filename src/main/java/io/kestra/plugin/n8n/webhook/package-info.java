@@ -1,5 +1,5 @@
 @PluginSubGroup(
-    title = "N8N",
+    title = "n8n Webhooks",
     description = "Trigger n8n workflows through HTTP Webhook endpoints.",
     categories = PluginSubGroup.PluginCategory.TOOL
 )

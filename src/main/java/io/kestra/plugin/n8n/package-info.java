@@ -1,5 +1,5 @@
 @PluginSubGroup(
-    title = "N8N",
+    title = "n8n",
     description = "Tasks for integrating with n8n automation platform.",
     categories = PluginSubGroup.PluginCategory.TOOL
 )

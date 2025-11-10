@@ -32,7 +32,7 @@ public abstract class AbstractTriggerWorkflow extends Task {
     protected static final boolean DEFAULT_WAIT = true;
 
     @Schema(
-        title = "Authentication Details for the N8N webhook",
+        title = "Authentication Details for the n8n webhook",
         description = "Authentication method for the n8n webhook. Supports Basic auth, Header auth, JWT auth, or None. Configure credentials to secure your webhook endpoint."
     )
     private Property<Authentication> authentication;
@@ -41,7 +41,7 @@ public abstract class AbstractTriggerWorkflow extends Task {
     HttpConfiguration options;
 
     @Schema(
-        title = "N8N webhook URL",
+        title = "n8n webhook URL",
         description = "The webhook URL endpoint from your n8n workflow. Use the Test URL for development or Production URL for live workflows."
     )
     @NotNull

@@ -26,10 +26,10 @@ import java.util.function.Consumer;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Trigger a N8N workflow via a webhook",
+    title = "Trigger a n8n workflow via a webhook",
     description = "This task allows you to execute n8n workflows from within Kestra by calling their webhook URLs. " +
-        "See the [N8N Webhook Docs](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/) " +
-        "for more information on getting started with N8N Webhooks."
+        "See the [n8n Webhook Docs](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/) " +
+        "for more information on getting started with n8n Webhooks."
 )
 @Plugin(
     examples = {
