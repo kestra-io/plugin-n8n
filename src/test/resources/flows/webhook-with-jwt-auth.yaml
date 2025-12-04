@@ -7,7 +7,7 @@ tasks:
     options:
       auth:
         type: BEARER
-        # This token is signed with the key setup in the bearer-auth-webhook n8n workflow.
+        # This token is signed with the key set up in the bearer-auth-webhook n8n workflow.
         token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.8VKCTiBegJPuPIZlp0wbV0Sbdn5BS6TE5DCx6oYNc5o"
     method: GET
     uri: http://localhost:5678/webhook/bearer-auth-webhook
