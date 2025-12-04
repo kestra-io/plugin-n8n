@@ -1,12 +1,13 @@
 #!/bin/bash
-
-set -e
+set -euo pipefail
 
 echo "Starting n8n services for testing..."
-
 docker compose -f docker-compose-ci.yml up -d
 
-MAX_ATTEMPTS=60
+echo "Docker services status:"
+docker compose -f docker-compose-ci.yml ps
+
+MAX_ATTEMPTS=180
 ATTEMPT=0
 
 while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
@@ -21,4 +22,8 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
 done
 
 echo "n8n webserver did not become ready in time."
-exit 1;
+echo "---- n8n logs (last 200 lines) ----"
+docker compose -f docker-compose-ci.yml logs --no-color n8n | tail -n 200
+echo "----------------------------------"
+
+exit 1

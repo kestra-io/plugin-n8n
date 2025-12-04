@@ -1,14 +1,32 @@
 services:
   n8n:
-    image: docker.n8n.io/n8nio/n8n
+    image: docker.n8n.io/n8nio/n8n:latest
     container_name: n8n
     ports:
       - "5678:5678"
+
+    # Force the container to run as the node user
+    user: "node"
+
     environment:
-      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      # Ensure CLI imports and runtime use the same folder/DB
+      N8N_USER_FOLDER: "/home/node/.n8n"
+      HOME: "/home/node"
+
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "false"
       N8N_RUNNERS_ENABLED: "true"
       N8N_ENCRYPTION_KEY: "mock_encryption_key"
+
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+
+      N8N_PORT: "5678"
+      N8N_HOST: "0.0.0.0"
+      N8N_PROTOCOL: "http"
+
     volumes:
-      - ./src/test/resources/n8n:/home/node/.n8n/workflows
-      - ./src/test/resources/n8n/n8n_init.sh:/home/node/n8n_init.sh
-    entrypoint: ["/bin/sh", "/home/node/n8n_init.sh"]
+      - ./src/test/resources/n8n:/home/node/.n8n/workflows:ro
+      - ./src/test/resources/n8n/n8n_init.sh:/home/node/n8n_init.sh:ro
+
+    entrypoint: [ "/bin/sh", "/home/node/n8n_init.sh" ]
+    restart: unless-stopped
