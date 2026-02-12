@@ -1,8 +1,6 @@
 @PluginSubGroup(
     title = "n8n",
-    description = "Tasks for integrating with the n8n automation platform.",
-    categories = PluginSubGroup.PluginCategory.TOOL,
-    categories = {
+    description = "Tasks for integrating with the n8n automation platform.",categories = {
         PluginSubGroup.PluginCategory.DATA,
         PluginSubGroup.PluginCategory.BUSINESS
     }
