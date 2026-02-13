@@ -1,7 +1,9 @@
 @PluginSubGroup(
     title = "n8n Webhooks",
-    description = "Trigger n8n workflows through HTTP Webhook endpoints.",
-    categories = PluginSubGroup.PluginCategory.TOOL
+    description = "Trigger n8n workflows through HTTP Webhook endpoints.",categories = {
+        PluginSubGroup.PluginCategory.DATA,
+        PluginSubGroup.PluginCategory.BUSINESS
+    }
 )
 package io.kestra.plugin.n8n.webhook;
 
