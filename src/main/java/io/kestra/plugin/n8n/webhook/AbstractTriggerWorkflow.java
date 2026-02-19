@@ -28,58 +28,58 @@ public abstract class AbstractTriggerWorkflow extends Task {
     private static final ContentType DEFAULT_CONTENT_TYPE = ContentType.BINARY;
     protected static final boolean DEFAULT_WAIT = true;
 
-    @Schema(title = "The HTTP client configuration.")
+    @Schema(title = "HTTP client configuration")
     protected HttpConfiguration options;
 
     @Schema(
         title = "n8n webhook URL",
-        description = "The webhook URL endpoint from your n8n workflow. Use the Test URL for development or Production URL for live workflows."
+        description = "Webhook endpoint from the target n8n workflow. Use the Test URL during development and switch to the Production URL for live runs."
     )
     @NotNull
     private Property<String> uri;
 
 
     @Schema(
-        title = "Content Type",
-        description = "Format of the request body data. Choose BINARY for files, JSON for structured data, XML for XML documents, or TEXT for plain text content."
+        title = "Content type",
+        description = "Format used for the request body. Default is BINARY for file sends; select JSON, XML, or TEXT when sending structured or textual payloads."
     )
     @Builder.Default
     private Property<ContentType> contentType = Property.ofValue(ContentType.BINARY);
 
     @Schema(
-        title = "Request Body",
-        description = "JSON data to send in the request body. Maximum payload size is 16MB. Use this for POST, PUT, or PATCH requests to send structured data to the n8n webhook."
+        title = "Request body",
+        description = "JSON-compatible data to send in the body. Ignored if `from` is set. Maximum payload size 16 MB."
     )
     private Property<Map<String, ?>> body;
 
     @Schema(
-        title = "Query Parameters",
-        description = "URL query parameters to append to the webhook URL. These parameters will be available in the n8n workflow as part of the incoming request data."
+        title = "Query parameters",
+        description = "Extra query parameters appended to the webhook URL; available to the n8n workflow as request data."
     )
     private Property<Map<String, ?>> queryParameters;
 
     @Schema(
-        title = "HTTP Headers",
-        description = "Custom HTTP headers to include with the webhook request. Headers are useful for authentication, content type specification, or passing additional metadata to the n8n workflow."
+        title = "HTTP headers",
+        description = "Custom headers for authentication, content negotiation, or metadata forwarded to n8n."
     )
     private Property<Map<String, ?>> headers;
 
     @Schema(
-        title = "File Source URI",
-        description = "URI pointing to a file in Kestra storage to send as the request body. Use this instead of 'body' when sending binary data, files, or large content to the n8n webhook."
+        title = "File source URI",
+        description = "Kestra storage URI for the request body. Use instead of `body` when sending binaries or large content; mutually exclusive with `body`."
     )
     private Property<URI> from;
 
     @Schema(
-        title = "HTTP Method",
-        description = "HTTP request method for the webhook call. n8n supports DELETE, GET, HEAD, PATCH, POST, and PUT methods. Choose the method that matches your n8n webhook configuration."
+        title = "HTTP method",
+        description = "Request method sent to the webhook. Must match the method configured on the n8n webhook; supports DELETE, GET, PATCH, POST, and PUT."
     )
     @NotNull
     private Property<HttpMethod> method;
 
     @Schema(
-        title = "Wait for Response",
-        description = "Whether to wait for the n8n webhook response. When true, Kestra waits for the workflow to complete according to the response mode configured in n8n (immediate, deferred, or streaming)."
+        title = "Wait for response",
+        description = "Whether to wait for the n8n response. Defaults to true; respects n8n response mode (immediate, deferred, streaming)."
     )
     @Builder.Default
     protected Property<Boolean> wait = Property.ofValue(DEFAULT_WAIT);
