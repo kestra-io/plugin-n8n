@@ -27,10 +27,8 @@ import java.util.function.Consumer;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Trigger an n8n workflow via a webhook",
-    description = "This task allows you to execute n8n workflows from within Kestra by calling their webhook URLs. " +
-        "See the [n8n Webhook Docs](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/) " +
-        "for more information on getting started with n8n Webhooks."
+    title = "Call n8n webhook from Kestra",
+    description = "Invokes an n8n workflow via its webhook URL using Kestra's HTTP client. Default behavior waits for the webhook response and parses JSON when the Content-Type includes `application/json`; other payloads are returned as text. Non-200 responses fail the task."
 )
 @Plugin(
     examples = {
@@ -81,6 +79,43 @@ import java.util.function.Consumer;
                       keyOne: valueOne
                     method: POST
                     uri: http://n8n:5678/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
+                """
+        ),
+        @Example(
+            title = "Send file payload from storage",
+            full = true,
+            code = """
+                id: n8n_webhook_trigger_with_file
+                namespace: company.team
+
+                tasks:
+                  - id: trigger_workflow
+                    type: io.kestra.plugin.n8n.webhook.TriggerWorkflow
+                    method: POST
+                    uri: https://n8n.example.com/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
+                    from: kestra:///data/uploads/report.pdf
+                    contentType: BINARY
+                """
+        ),
+        @Example(
+            title = "GET webhook with headers and params",
+            full = true,
+            code = """
+                id: n8n_webhook_trigger_with_headers
+                namespace: company.team
+
+                tasks:
+                  - id: trigger_workflow
+                    type: io.kestra.plugin.n8n.webhook.TriggerWorkflow
+                    method: GET
+                    uri: https://n8n.example.com/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
+                    wait: false
+                    queryParameters:
+                      source: kestra
+                      runId: "{{ run.id }}"
+                    headers:
+                      X-Request-ID: "{{ taskrun.id }}"
+                      X-Api-Key: "{{ secret('N8N_API_KEY') }}"
                 """
         )
     }
