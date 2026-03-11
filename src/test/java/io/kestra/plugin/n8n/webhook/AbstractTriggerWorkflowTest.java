@@ -1,5 +1,15 @@
 package io.kestra.plugin.n8n.webhook;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import io.kestra.core.http.HttpRequest;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.annotations.Plugin;
@@ -9,28 +19,20 @@ import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.storages.Storage;
 import io.kestra.plugin.n8n.ContentType;
 import io.kestra.plugin.n8n.HttpMethod;
+
 import jakarta.inject.Inject;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 @KestraTest
 class AbstractTriggerWorkflowTest {
     @Inject
     RunContextFactory runContextFactory = new RunContextFactory();
 
-    private TestTriggerWorkflow.TestTriggerWorkflowBuilder<?,?> getBaseTriggerWorkflowBuilder() {
+    private TestTriggerWorkflow.TestTriggerWorkflowBuilder<?, ?> getBaseTriggerWorkflowBuilder() {
         return TestTriggerWorkflow.builder()
             .uri(Property.ofValue("http://example.com"))
             .method(Property.ofValue(HttpMethod.POST));
@@ -39,11 +41,12 @@ class AbstractTriggerWorkflowTest {
     @Test
     void givenAbstractTriggerWorkflowWithQueryParameters_whenRequestBuilt_thenCorrectQueryParametersAreAdded() throws Exception {
         RunContext runContext = runContextFactory.of();
-        Map<String, String> queryParameters = new TreeMap<>(Map.of(
-        "keyOne", "valueOne",
-        "keyTwo", "valueTwo"
-        ));
-
+        Map<String, String> queryParameters = new TreeMap<>(
+            Map.of(
+                "keyOne", "valueOne",
+                "keyTwo", "valueTwo"
+            )
+        );
 
         TestTriggerWorkflow abstractTriggerWorkflow = getBaseTriggerWorkflowBuilder()
             .queryParameters(Property.ofValue(queryParameters))
@@ -60,11 +63,12 @@ class AbstractTriggerWorkflowTest {
     @Test
     void givenAbstractTriggerWorkflowWithCustomHeaders_whenRequestBuilt_thenCorrectCustomHeadersAreAdded() throws Exception {
         RunContext runContext = runContextFactory.of();
-        Map<String, String> headers = new TreeMap<>(Map.of(
-            "keyOne", "valueOne",
-            "keyTwo", "valueTwo"
-        ));
-
+        Map<String, String> headers = new TreeMap<>(
+            Map.of(
+                "keyOne", "valueOne",
+                "keyTwo", "valueTwo"
+            )
+        );
 
         TestTriggerWorkflow abstractTriggerWorkflow = getBaseTriggerWorkflowBuilder()
             .headers(Property.ofValue(headers))
@@ -83,10 +87,9 @@ class AbstractTriggerWorkflowTest {
     void givenAbstractTriggerWorkflowWithBody_whenRequestBuilt_thenCorrectBody() throws Exception {
         RunContext runContext = runContextFactory.of();
         Map<String, String> body = Map.of(
-        "keyOne", "valueOne",
-        "keyTwo", "valueTwo"
+            "keyOne", "valueOne",
+            "keyTwo", "valueTwo"
         );
-
 
         TestTriggerWorkflow abstractTriggerWorkflow = getBaseTriggerWorkflowBuilder()
             .body(Property.ofValue(body))
@@ -106,12 +109,11 @@ class AbstractTriggerWorkflowTest {
         byte[] fileBytes = "[]".getBytes();
         InputStream fileInputStream = new ByteArrayInputStream(fileBytes);
 
-
         Storage storageSpy = Mockito.spy(runContext.storage());
         RunContext runContextSpy = Mockito.spy(runContext);
 
         Mockito.doReturn(fileInputStream).when(storageSpy)
-                .getFile(eq(path));
+            .getFile(eq(path));
 
         Mockito.doReturn(storageSpy).when(runContextSpy)
             .storage();
@@ -135,7 +137,6 @@ class AbstractTriggerWorkflowTest {
         byte[] fileBytes = "[]".getBytes();
         InputStream fileInputStream = new ByteArrayInputStream(fileBytes);
 
-
         Storage storageSpy = Mockito.spy(runContext.storage());
         RunContext runContextSpy = Mockito.spy(runContext);
 
@@ -152,7 +153,7 @@ class AbstractTriggerWorkflowTest {
 
         HttpRequest httpRequest = abstractTriggerWorkflow.buildRequest(runContextSpy);
 
-        assertEquals( "[]", httpRequest.getBody().getContent());
+        assertEquals("[]", httpRequest.getBody().getContent());
     }
 
     @Test
@@ -160,12 +161,16 @@ class AbstractTriggerWorkflowTest {
         RunContext runContext = runContextFactory.of();
 
         TestTriggerWorkflow abstractTriggerWorkflow = getBaseTriggerWorkflowBuilder()
-            .from(Property.ofValue(
-                new URI("examplePath"))
+            .from(
+                Property.ofValue(
+                    new URI("examplePath")
+                )
             )
-            .body(Property.ofValue(
-                Map.of("keyOne", "valueOnw")
-            ))
+            .body(
+                Property.ofValue(
+                    Map.of("keyOne", "valueOnw")
+                )
+            )
             .contentType(Property.ofValue(ContentType.JSON))
             .build();
 
@@ -179,5 +184,6 @@ class AbstractTriggerWorkflowTest {
     @SuperBuilder
     @NoArgsConstructor
     @Plugin
-    static public class TestTriggerWorkflow extends AbstractTriggerWorkflow {}
+    static public class TestTriggerWorkflow extends AbstractTriggerWorkflow {
+    }
 }

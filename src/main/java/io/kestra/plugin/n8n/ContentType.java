@@ -6,7 +6,6 @@ public enum ContentType {
     XML("application/xml"),
     BINARY("application/octet-stream");
 
-
     ContentType(String contentType) {
     }
 }

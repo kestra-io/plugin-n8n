@@ -1,5 +1,10 @@
 package io.kestra.plugin.n8n.webhook;
 
+import java.util.Base64;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
 import io.kestra.core.http.client.configurations.AbstractAuthConfiguration;
 import io.kestra.core.http.client.configurations.BasicAuthConfiguration;
 import io.kestra.core.http.client.configurations.BearerAuthConfiguration;
@@ -13,12 +18,9 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.n8n.HttpMethod;
+
 import jakarta.inject.Inject;
 import lombok.Getter;
-import org.junit.jupiter.api.Test;
-
-import java.util.Base64;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -30,7 +32,6 @@ class TriggerWorkflowTest {
 
     private static final String N8N_PATH = "http://localhost:5678";
     private static final String WEBHOOK_PATH = "webhook";
-
 
     @Test
     void givenTriggerWorkflowWithWaitFalse_whenRun_thenBodyIsNull() throws Exception {
@@ -69,8 +70,8 @@ class TriggerWorkflowTest {
             .build();
 
         TriggerWorkflow.Output output = triggerWorkflow.run(runContext);
-        Map<?,?> outputBody = assertInstanceOf(Map.class, output.body());
-        Map<?,?> outputEchoedHeaders = assertInstanceOf(Map.class, outputBody.get("headers"));
+        Map<?, ?> outputBody = assertInstanceOf(Map.class, output.body());
+        Map<?, ?> outputEchoedHeaders = assertInstanceOf(Map.class, outputBody.get("headers"));
 
         assertEquals(
             "Basic " + Base64.getEncoder().encodeToString((USERNAME + ":" + PASSWORD).getBytes()),
@@ -101,8 +102,8 @@ class TriggerWorkflowTest {
             .build();
 
         TriggerWorkflow.Output output = triggerWorkflow.run(runContext);
-        Map<?,?> outputBody = assertInstanceOf(Map.class, output.body());
-        Map<?,?> outputEchoedHeaders = assertInstanceOf(Map.class, outputBody.get("headers"));
+        Map<?, ?> outputBody = assertInstanceOf(Map.class, output.body());
+        Map<?, ?> outputEchoedHeaders = assertInstanceOf(Map.class, outputBody.get("headers"));
 
         assertEquals(
             "Bearer " + TOKEN,
@@ -128,8 +129,8 @@ class TriggerWorkflowTest {
             .build();
 
         TriggerWorkflow.Output output = triggerWorkflow.run(runContext);
-        Map<?,?> outputBody = assertInstanceOf(Map.class, output.body());
-        Map<?,?> outputEchoedHeaders = assertInstanceOf(Map.class, outputBody.get("headers"));
+        Map<?, ?> outputBody = assertInstanceOf(Map.class, output.body());
+        Map<?, ?> outputEchoedHeaders = assertInstanceOf(Map.class, outputBody.get("headers"));
 
         assertEquals(AUTH_HEADER_VALUE, outputEchoedHeaders.get(AUTH_HEADER_NAME));
     }
@@ -167,7 +168,6 @@ class TriggerWorkflowTest {
         TriggerWorkflow.Output actualOutput = triggerWorkflow.run(runContext);
         assertInstanceOf(Map.class, actualOutput.body());
     }
-
 
     private String createWebhookUri(WebhookEndpoints webhookId) {
         return String.format("%s/%s/%s", N8N_PATH, WEBHOOK_PATH, webhookId.getEndpoint());

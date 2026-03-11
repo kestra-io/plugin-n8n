@@ -1,6 +1,13 @@
 package io.kestra.plugin.n8n.webhook;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.kestra.core.http.HttpRequest;
 import io.kestra.core.http.HttpResponse;
 import io.kestra.core.http.client.HttpClient;
@@ -10,16 +17,11 @@ import io.kestra.core.models.tasks.Output;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 @SuperBuilder
 @ToString
@@ -134,8 +136,7 @@ public class TriggerWorkflow extends AbstractTriggerWorkflow implements Runnable
     @Builder
     public record Output(
         int statusCode,
-        Object body
-    ) implements io.kestra.core.models.tasks.Output {
+        Object body) implements io.kestra.core.models.tasks.Output {
     }
 
     private TriggerWorkflow.Output makeRequest(RunContext runContext, HttpRequest request, boolean wait) throws Exception {
@@ -149,26 +150,31 @@ public class TriggerWorkflow extends AbstractTriggerWorkflow implements Runnable
     }
 
     private static Consumer<HttpResponse<InputStream>> handleResponse(boolean wait, CompletableFuture<Output> completableFuture) {
-        return (HttpResponse<InputStream> response) -> {
+        return (HttpResponse<InputStream> response) ->
+        {
             if (response.getStatus().getCode() != 200) {
                 completableFuture.completeExceptionally(new Exception("Received non-200 response from Webhook: " + response.getStatus().getCode()));
                 return;
             }
 
             if (!wait) {
-                completableFuture.complete(new Output(
-                    response.getStatus().getCode(),
-                    null
-                ));
+                completableFuture.complete(
+                    new Output(
+                        response.getStatus().getCode(),
+                        null
+                    )
+                );
                 return;
             }
 
             try {
                 String contentTypeHeader = response.getHeaders().firstValue("Content-Type").orElse(null);
-                completableFuture.complete(new Output(
-                    response.getStatus().getCode(),
-                    parseBodyForContentType(response.getBody(), contentTypeHeader)
-                ));
+                completableFuture.complete(
+                    new Output(
+                        response.getStatus().getCode(),
+                        parseBodyForContentType(response.getBody(), contentTypeHeader)
+                    )
+                );
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

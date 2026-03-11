@@ -1,5 +1,13 @@
 package io.kestra.plugin.n8n.webhook;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+
+import org.apache.hc.core5.net.URIBuilder;
+
 import io.kestra.core.http.HttpRequest;
 import io.kestra.core.http.client.configurations.HttpConfiguration;
 import io.kestra.core.models.property.Property;
@@ -7,17 +15,11 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.n8n.ContentType;
 import io.kestra.plugin.n8n.HttpMethod;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.apache.hc.core5.net.URIBuilder;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -37,7 +39,6 @@ public abstract class AbstractTriggerWorkflow extends Task {
     )
     @NotNull
     private Property<String> uri;
-
 
     @Schema(
         title = "Content type",
@@ -127,10 +128,11 @@ public abstract class AbstractTriggerWorkflow extends Task {
     }
 
     private static void setRequestBody(HttpRequest.HttpRequestBuilder requestBuilder, Map<String, ?> body) {
-        requestBuilder.body(HttpRequest.JsonRequestBody
-            .builder()
-            .content(body)
-            .build()
+        requestBuilder.body(
+            HttpRequest.JsonRequestBody
+                .builder()
+                .content(body)
+                .build()
         );
     }
 
