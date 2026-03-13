@@ -1,4 +1,4 @@
-package io.kestra.plugin.n8n.webhook;
+package io.kestra.plugin.n8n;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,8 +13,6 @@ import io.kestra.core.http.client.configurations.HttpConfiguration;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.n8n.ContentType;
-import io.kestra.plugin.n8n.HttpMethod;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

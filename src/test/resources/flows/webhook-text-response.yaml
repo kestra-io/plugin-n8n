@@ -3,6 +3,6 @@ namespace: company.team
 
 tasks:
   - id: trigger_workflow
-    type: io.kestra.plugin.n8n.webhook.TriggerWorkflow
+    type: io.kestra.plugin.n8n.TriggerWorkflow
     method: GET
     uri: http://localhost:5678/webhook/no-auth-webhook-text-response

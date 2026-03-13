@@ -1,8 +1,9 @@
-package io.kestra.plugin.n8n.webhook;
+package io.kestra.plugin.n8n;
 
 import java.util.Base64;
 import java.util.Map;
 
+import io.kestra.plugin.n8n.TriggerWorkflow;
 import org.junit.jupiter.api.Test;
 
 import io.kestra.core.http.client.configurations.AbstractAuthConfiguration;

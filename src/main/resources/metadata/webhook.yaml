@@ -1,8 +1,0 @@
-group: io.kestra.plugin.n8n.webhook
-name: "webhook"
-title: "n8n Webhooks"
-description: "Tasks that call n8n webhook endpoints to start workflows."
-body: "Provide the n8n webhook URL, HTTP method/body/headers, and optional authentication to invoke n8n flows and relay responses back into Kestra."
-videos: []
-createdBy: "Kestra Core Team"
-managedBy: "Kestra Core Team"

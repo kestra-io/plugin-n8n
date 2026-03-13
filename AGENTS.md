@@ -22,14 +22,14 @@ Infrastructure dependencies (Docker Compose services):
 
 ### Key Plugin Classes
 
-- `io.kestra.plugin.n8n.webhook.TriggerWorkflow`
+- `io.kestra.plugin.n8n.TriggerWorkflow`
 
 ### Project Structure
 
 ```
 plugin-n8n/
-├── src/main/java/io/kestra/plugin/n8n/webhook/
-├── src/test/java/io/kestra/plugin/n8n/webhook/
+├── src/main/java/io/kestra/plugin/n8n/
+├── src/test/java/io/kestra/plugin/n8n/
 ├── build.gradle
 └── README.md
 ```
