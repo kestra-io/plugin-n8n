@@ -1,4 +1,4 @@
-package io.kestra.plugin.n8n.webhook;
+package io.kestra.plugin.n8n;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import io.kestra.plugin.n8n.AbstractTriggerWorkflow;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

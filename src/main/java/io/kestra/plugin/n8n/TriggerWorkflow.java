@@ -1,13 +1,6 @@
-package io.kestra.plugin.n8n.webhook;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+package io.kestra.plugin.n8n;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.kestra.core.http.HttpRequest;
 import io.kestra.core.http.HttpResponse;
 import io.kestra.core.http.client.HttpClient;
@@ -17,11 +10,16 @@ import io.kestra.core.models.tasks.Output;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 @SuperBuilder
 @ToString
@@ -33,6 +31,7 @@ import lombok.experimental.SuperBuilder;
     description = "Invokes an n8n workflow via its webhook URL using Kestra's HTTP client. Default behavior waits for the webhook response and parses JSON when the Content-Type includes `application/json`; other payloads are returned as text. Non-200 responses fail the task."
 )
 @Plugin(
+    aliases = { "io.kestra.plugin.n8n.webhook.TriggerWorkflow" },
     examples = {
         @Example(
             title = "Simple Trigger Workflow",
@@ -43,7 +42,7 @@ import lombok.experimental.SuperBuilder;
 
                 tasks:
                   - id: trigger_workflow
-                    type: io.kestra.plugin.n8n.webhook.TriggerWorkflow
+                    type: io.kestra.plugin.n8n.TriggerWorkflow
                     method: POST
                     uri: https://n8n.example.com/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
                 """
@@ -57,7 +56,7 @@ import lombok.experimental.SuperBuilder;
 
                 tasks:
                   - id: trigger_workflow
-                    type: io.kestra.plugin.n8n.webhook.TriggerWorkflow
+                    type: io.kestra.plugin.n8n.TriggerWorkflow
                     options:
                       auth:
                         type: BASIC
@@ -76,7 +75,7 @@ import lombok.experimental.SuperBuilder;
 
                 tasks:
                   - id: trigger_workflow
-                    type: io.kestra.plugin.n8n.webhook.TriggerWorkflow
+                    type: io.kestra.plugin.n8n.TriggerWorkflow
                     body:
                       keyOne: valueOne
                     method: POST
@@ -92,7 +91,7 @@ import lombok.experimental.SuperBuilder;
 
                 tasks:
                   - id: trigger_workflow
-                    type: io.kestra.plugin.n8n.webhook.TriggerWorkflow
+                    type: io.kestra.plugin.n8n.TriggerWorkflow
                     method: POST
                     uri: https://n8n.example.com/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
                     from: kestra:///data/uploads/report.pdf
@@ -108,7 +107,7 @@ import lombok.experimental.SuperBuilder;
 
                 tasks:
                   - id: trigger_workflow
-                    type: io.kestra.plugin.n8n.webhook.TriggerWorkflow
+                    type: io.kestra.plugin.n8n.TriggerWorkflow
                     method: GET
                     uri: https://n8n.example.com/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
                     wait: false
