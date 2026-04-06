@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -29,6 +30,7 @@ public abstract class AbstractTriggerWorkflow extends Task {
     protected static final boolean DEFAULT_WAIT = true;
 
     @Schema(title = "HTTP client configuration")
+    @PluginProperty(group = "advanced")
     protected HttpConfiguration options;
 
     @Schema(
@@ -36,6 +38,7 @@ public abstract class AbstractTriggerWorkflow extends Task {
         description = "Webhook endpoint from the target n8n workflow. Use the Test URL during development and switch to the Production URL for live runs."
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> uri;
 
     @Schema(
@@ -43,30 +46,35 @@ public abstract class AbstractTriggerWorkflow extends Task {
         description = "Format used for the request body. Default is BINARY for file sends; select JSON, XML, or TEXT when sending structured or textual payloads."
     )
     @Builder.Default
+    @PluginProperty(group = "advanced")
     private Property<ContentType> contentType = Property.ofValue(ContentType.BINARY);
 
     @Schema(
         title = "Request body",
         description = "JSON-compatible data to send in the body. Ignored if `from` is set. Maximum payload size 16 MB."
     )
+    @PluginProperty(group = "advanced")
     private Property<Map<String, ?>> body;
 
     @Schema(
         title = "Query parameters",
         description = "Extra query parameters appended to the webhook URL; available to the n8n workflow as request data."
     )
+    @PluginProperty(group = "advanced")
     private Property<Map<String, ?>> queryParameters;
 
     @Schema(
         title = "HTTP headers",
         description = "Custom headers for authentication, content negotiation, or metadata forwarded to n8n."
     )
+    @PluginProperty(group = "advanced")
     private Property<Map<String, ?>> headers;
 
     @Schema(
         title = "File source URI",
         description = "Kestra storage URI for the request body. Use instead of `body` when sending binaries or large content; mutually exclusive with `body`."
     )
+    @PluginProperty(group = "source")
     private Property<URI> from;
 
     @Schema(
@@ -74,6 +82,7 @@ public abstract class AbstractTriggerWorkflow extends Task {
         description = "Request method sent to the webhook. Must match the method configured on the n8n webhook; supports DELETE, GET, PATCH, POST, and PUT."
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<HttpMethod> method;
 
     @Schema(
@@ -81,6 +90,7 @@ public abstract class AbstractTriggerWorkflow extends Task {
         description = "Whether to wait for the n8n response. Defaults to true; respects n8n response mode (immediate, deferred, streaming)."
     )
     @Builder.Default
+    @PluginProperty(group = "advanced")
     protected Property<Boolean> wait = Property.ofValue(DEFAULT_WAIT);
 
     protected HttpRequest buildRequest(RunContext runContext) throws Exception {
