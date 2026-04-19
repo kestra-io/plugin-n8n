@@ -35,42 +35,18 @@
 </p>
 <p align="center" style="color:grey;"><i>Get started with Kestra in 3 minutes.</i></p>
 
-
 # n8n Plugin for Kestra
 
-> This repository provides the official **Kestra plugin for n8n**.
+## Why
 
-It enables Kestra flows to trigger **n8n workflows** through HTTP Webhook endpoints — with support for headers, authentication, files, and different response modes (immediate, deferred, or streaming).
+- What user problem does this solve? Teams need to trigger n8n workflows from Kestra from orchestrated workflows instead of relying on manual console work, ad hoc scripts, or disconnected schedulers.
+- Why would a team adopt this plugin in a workflow? It keeps n8n steps in the same Kestra flow as upstream preparation, approvals, retries, notifications, and downstream systems.
+- What operational/business outcome does it enable? It reduces manual handoffs and fragmented tooling while improving reliability, traceability, and delivery speed for processes that depend on n8n.
 
-This repository follows the standard Kestra plugin template, ensuring consistent structure, unit testing, and CI/CD setup for seamless integration.
+## What
 
-![Kestra orchestrator](https://kestra.io/video.gif)
-
-## Running the project locally
-### Prerequisites
-- Java 21
-- Docker
-
-### Running tests
-```
-./gradlew check --parallel
-```
-
-### Development
-
-`VSCode`:
-
-Follow the README.md within the `.devcontainer` folder for a quick and easy way to get up and running with developing plugins if you are using VSCode.
-
-`Other IDEs`:
-
-```
-./gradlew shadowJar && docker build -t kestra-custom . && docker run --rm -p 8080:8080 kestra-custom server local
-```
-> [!NOTE]
-> You need to relaunch this whole command every time you make a change to your plugin
-
-Go to http://localhost:8080; your plugin will be available to use
+- Provides plugin components under `io.kestra.plugin.n8n`.
+- Includes classes such as `HttpMethod`, `TriggerWorkflow`, `ContentType`.
 
 ## Documentation
 * Full documentation can be found under: [kestra.io/docs](https://kestra.io/docs)
