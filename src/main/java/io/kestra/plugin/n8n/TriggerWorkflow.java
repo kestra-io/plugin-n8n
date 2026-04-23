@@ -44,7 +44,7 @@ import java.util.function.Consumer;
                   - id: trigger_workflow
                     type: io.kestra.plugin.n8n.TriggerWorkflow
                     method: POST
-                    uri: https://n8n.example.com/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
+                    uri: "{{ secret('N8N_WEBHOOK_URL') }}"
                 """
         ),
         @Example(
@@ -63,7 +63,7 @@ import java.util.function.Consumer;
                         username: "{{ secret('N8N_WEBHOOK_USERNAME') }}"
                         password: "{{ secret('N8N_WEBHOOK_PASSWORD') }}"
                     method: POST
-                    uri: https://n8n.example.com/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
+                    uri: "{{ secret('N8N_WEBHOOK_URL') }}"
                 """
         ),
         @Example(
@@ -79,7 +79,7 @@ import java.util.function.Consumer;
                     body:
                       keyOne: valueOne
                     method: POST
-                    uri: http://n8n:5678/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
+                    uri: "{{ secret('N8N_WEBHOOK_URL') }}"
                 """
         ),
         @Example(
@@ -93,7 +93,7 @@ import java.util.function.Consumer;
                   - id: trigger_workflow
                     type: io.kestra.plugin.n8n.TriggerWorkflow
                     method: POST
-                    uri: https://n8n.example.com/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
+                    uri: "{{ secret('N8N_WEBHOOK_URL') }}"
                     from: kestra:///data/uploads/report.pdf
                     contentType: BINARY
                 """
@@ -109,7 +109,7 @@ import java.util.function.Consumer;
                   - id: trigger_workflow
                     type: io.kestra.plugin.n8n.TriggerWorkflow
                     method: GET
-                    uri: https://n8n.example.com/webhook/213e8fbc-f843-428c-9860-ab9f64e5ef3b
+                    uri: "{{ secret('N8N_WEBHOOK_URL') }}"
                     wait: false
                     queryParameters:
                       source: kestra
