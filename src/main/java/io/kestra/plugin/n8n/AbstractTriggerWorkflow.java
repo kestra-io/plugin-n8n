@@ -38,7 +38,7 @@ public abstract class AbstractTriggerWorkflow extends Task {
         description = "Webhook endpoint from the target n8n workflow. Use the Test URL during development and switch to the Production URL for live runs."
     )
     @NotNull
-    @PluginProperty(group = "main")
+    @PluginProperty(group = "main", secret = true)
     private Property<String> uri;
 
     @Schema(
