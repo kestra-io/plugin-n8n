@@ -134,7 +134,9 @@ public class TriggerWorkflow extends AbstractTriggerWorkflow implements Runnable
 
     @Builder
     public record Output(
+        @Schema(title = "HTTP status code returned by the n8n webhook")
         int statusCode,
+        @Schema(title = "Response body returned by the n8n webhook")
         Object body) implements io.kestra.core.models.tasks.Output {
     }
 
