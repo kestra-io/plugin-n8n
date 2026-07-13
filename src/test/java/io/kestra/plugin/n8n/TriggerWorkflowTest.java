@@ -3,6 +3,8 @@ package io.kestra.plugin.n8n;
 import java.util.Base64;
 import java.util.Map;
 
+import io.kestra.core.exceptions.InternalException;
+import io.kestra.core.services.TaskOutputService;
 import io.kestra.plugin.n8n.TriggerWorkflow;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 class TriggerWorkflowTest {
     @Inject
     RunContextFactory runContextFactory = new RunContextFactory();
+
+    @Inject
+    TaskOutputService taskOutputService;
 
     private static final String N8N_PATH = "http://localhost:5678";
     private static final String WEBHOOK_PATH = "webhook";
@@ -188,11 +193,11 @@ class TriggerWorkflowTest {
 
     @Test
     @ExecuteFlow("flows/webhook-text-response.yaml")
-    void givenValidFlowYamlWithTriggerWorkflowWithBearerTextResponse_whenFlowExecuted_thenFlowFinishesSuccessfully(Execution execution) {
+    void givenValidFlowYamlWithTriggerWorkflowWithBearerTextResponse_whenFlowExecuted_thenFlowFinishesSuccessfully(Execution execution) throws InternalException {
         assertEquals(execution.getState().getCurrent(), State.Type.SUCCESS);
 
         TaskRun webhookTaskRun = execution.getTaskRunList().getFirst();
-        assertEquals(webhookTaskRun.getOutputs().get("body"), "Webhook triggered successfully");
+        assertEquals(taskOutputService.getOutputs(webhookTaskRun).get("body"), "Webhook triggered successfully");
     }
 
     @Getter
