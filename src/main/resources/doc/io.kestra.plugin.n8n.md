@@ -4,7 +4,7 @@ Trigger n8n workflows via webhook from Kestra flows.
 
 ## Authentication
 
-Set `uri` to your n8n webhook URL (this is the secret credential — store it in a [secret](https://kestra.io/docs/concepts/secret)). For authenticated webhooks, pass credentials via `options.auth` (basic auth) or add an API key header via `headers`. Apply connection properties globally with [plugin defaults](https://kestra.io/docs/workflow-components/plugin-defaults).
+Set `uri` to your n8n webhook URL (this is the secret credential — store it in a [secret](https://kestra.io/docs/concepts/secret)). For authenticated webhooks, pass credentials via `options.auth` (basic auth) or add an API key header via `headers`. Set connection properties on each task.
 
 ## Tasks
 
