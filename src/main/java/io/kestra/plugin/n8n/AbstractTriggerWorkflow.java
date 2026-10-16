@@ -10,6 +10,7 @@ import org.apache.hc.core5.net.URIBuilder;
 
 import io.kestra.core.http.HttpRequest;
 import io.kestra.core.http.client.configurations.HttpConfiguration;
+import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
@@ -18,7 +19,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -145,18 +145,19 @@ public abstract class AbstractTriggerWorkflow extends Task {
     }
 
     private static void setRequestBody(RunContext runContext, HttpRequest.HttpRequestBuilder requestBuilder, URI uri, ContentType contentType) throws IOException {
-        InputStream bodyInputStream = runContext.storage().getFile(uri);
-        HttpRequest.RequestBody requestBody = switch (contentType) {
-            case XML, JSON, TEXT -> HttpRequest.StringRequestBody.builder()
-                .contentType(contentType.name())
-                .content(new String(bodyInputStream.readAllBytes()))
-                .build();
-            case BINARY -> HttpRequest.ByteArrayRequestBody.builder()
-                .contentType(contentType.name())
-                .content(bodyInputStream.readAllBytes())
-                .build();
-        };
+        try (InputStream bodyInputStream = runContext.storage().getFile(uri)) {
+            HttpRequest.RequestBody requestBody = switch (contentType) {
+                case XML, JSON, TEXT -> HttpRequest.StringRequestBody.builder()
+                    .contentType(contentType.getMimeType())
+                    .content(new String(bodyInputStream.readAllBytes()))
+                    .build();
+                case BINARY -> HttpRequest.ByteArrayRequestBody.builder()
+                    .contentType(contentType.getMimeType())
+                    .content(bodyInputStream.readAllBytes())
+                    .build();
+            };
 
-        requestBuilder.body(requestBody);
+            requestBuilder.body(requestBody);
+        }
     }
 }

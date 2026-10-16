@@ -6,6 +6,13 @@ public enum ContentType {
     XML("application/xml"),
     BINARY("application/octet-stream");
 
-    ContentType(String contentType) {
+    private final String mimeType;
+
+    ContentType(String mimeType) {
+        this.mimeType = mimeType;
+    }
+
+    public String getMimeType() {
+        return mimeType;
     }
 }
