@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import io.kestra.plugin.n8n.AbstractTriggerWorkflow;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -18,8 +17,6 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.storages.Storage;
-import io.kestra.plugin.n8n.ContentType;
-import io.kestra.plugin.n8n.HttpMethod;
 
 import jakarta.inject.Inject;
 import lombok.*;
@@ -129,6 +126,10 @@ class AbstractTriggerWorkflowTest {
             fileBytes,
             (byte[]) httpRequest.getBody().getContent()
         );
+        assertEquals(
+            "application/octet-stream",
+            httpRequest.getBody().getContentType()
+        );
     }
 
     @Test
@@ -155,6 +156,10 @@ class AbstractTriggerWorkflowTest {
         HttpRequest httpRequest = abstractTriggerWorkflow.buildRequest(runContextSpy);
 
         assertEquals("[]", httpRequest.getBody().getContent());
+        assertEquals(
+            "application/json",
+            httpRequest.getBody().getContentType()
+        );
     }
 
     @Test
