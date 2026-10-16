@@ -163,6 +163,30 @@ class AbstractTriggerWorkflowTest {
     }
 
     @Test
+    void givenAbstractTriggerWorkflowWithFromAndContentType_whenRequestBuilt_thenMimeTypeIsSent() throws Exception {
+        RunContext runContext = runContextFactory.of();
+        URI path = runContext.storage().putFile(new ByteArrayInputStream("[]".getBytes()), "file.txt");
+
+        Map<ContentType, String> expectedMimeTypes = Map.of(
+            ContentType.TEXT, "text/plain",
+            ContentType.JSON, "application/json",
+            ContentType.XML, "application/xml",
+            ContentType.BINARY, "application/octet-stream"
+        );
+
+        for (Map.Entry<ContentType, String> entry : expectedMimeTypes.entrySet()) {
+            TestTriggerWorkflow abstractTriggerWorkflow = getBaseTriggerWorkflowBuilder()
+                .from(Property.ofValue(path))
+                .contentType(Property.ofValue(entry.getKey()))
+                .build();
+
+            HttpRequest httpRequest = abstractTriggerWorkflow.buildRequest(runContext);
+
+            assertEquals(entry.getValue(), httpRequest.getBody().getContentType(), entry.getKey().name());
+        }
+    }
+
+    @Test
     void givenAbstractTriggerWorkflowWithFromAndBody_whenRequestBuilt_thenErrorIsThrown() throws Exception {
         RunContext runContext = runContextFactory.of();
 

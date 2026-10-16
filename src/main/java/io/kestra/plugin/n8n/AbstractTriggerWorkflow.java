@@ -148,11 +148,11 @@ public abstract class AbstractTriggerWorkflow extends Task {
         try (InputStream bodyInputStream = runContext.storage().getFile(uri)) {
             HttpRequest.RequestBody requestBody = switch (contentType) {
                 case XML, JSON, TEXT -> HttpRequest.StringRequestBody.builder()
-                    .contentType(contentType.getContentType())
+                    .contentType(contentType.getMimeType())
                     .content(new String(bodyInputStream.readAllBytes()))
                     .build();
                 case BINARY -> HttpRequest.ByteArrayRequestBody.builder()
-                    .contentType(contentType.getContentType())
+                    .contentType(contentType.getMimeType())
                     .content(bodyInputStream.readAllBytes())
                     .build();
             };
